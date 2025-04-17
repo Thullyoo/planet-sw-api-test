@@ -29,7 +29,7 @@ public class PlanetServiceTest {
     private PlanetRepository planetRepository;
 
     @Test
-    public void createPlanet_withValidData_returnsPlanet(){
+    public void createPlanet_withValidData_returnsPlanet() {
         when(planetRepository.save(PLANET)).thenReturn(PLANET);
 
         Planet planet = planetService.create(PLANET);
@@ -38,28 +38,47 @@ public class PlanetServiceTest {
     }
 
     @Test
-    public void createPlanet_withInvalidDate_throwException(){
+    public void createPlanet_withInvalidDate_throwException() {
         when(planetRepository.save(INVALID_PLANET)).thenThrow(RuntimeException.class);
 
         assertThatThrownBy(() -> planetService.create(INVALID_PLANET)).isInstanceOf(RuntimeException.class);
-   }
+    }
 
-   @Test
-   public void getPlanet_byExistingId_ReturnsPlanet(){
+    @Test
+    public void getPlanet_byExistingId_ReturnsPlanet() {
         when(planetRepository.findById(1L)).thenReturn(Optional.of(PLANET));
 
         Optional<Planet> res = planetService.get(1L);
 
         assertThat(res).isNotEmpty();
         assertThat(res.get()).isEqualTo(PLANET);
-   }
+    }
 
-   @Test
-   public void getPlanet_byUnexistingId_ReturnsEmpty(){
-       when(planetRepository.findById(1L)).thenReturn(Optional.empty());
+    @Test
+    public void getPlanet_byUnexistingId_ReturnsEmpty() {
+        when(planetRepository.findById(1L)).thenReturn(Optional.empty());
 
-       Optional<Planet> res = planetService.get(1L);
+        Optional<Planet> res = planetService.get(1L);
 
-       assertThat(res).isEmpty();
-   }
+        assertThat(res).isEmpty();
+    }
+
+    @Test
+    public void getPlanet_ByExistingName_ReturnsPlanet() {
+        when(planetRepository.findByName("name")).thenReturn(Optional.of(PLANET));
+
+        Optional<Planet> res = planetService.getByName("name");
+
+        assertThat(res).isNotEmpty();
+        assertThat(res.get()).isEqualTo(PLANET);
+    }
+
+    @Test
+    public void getPlanet_ByUnexistingName_ReturnsEmpty() {
+        when(planetRepository.findByName("n")).thenReturn(Optional.empty());
+
+        Optional<Planet> res = planetService.getByName("n");
+
+        assertThat(res).isEmpty();
+    }
 }
