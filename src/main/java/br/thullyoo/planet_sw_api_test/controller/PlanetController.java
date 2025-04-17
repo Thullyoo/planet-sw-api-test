@@ -4,10 +4,7 @@ import br.thullyoo.planet_sw_api_test.model.Planet;
 import br.thullyoo.planet_sw_api_test.service.PlanetService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/planets")
@@ -24,4 +21,9 @@ public class PlanetController {
         return ResponseEntity.status(HttpStatus.CREATED).body(planetService.create(planet));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Planet> get(@PathVariable("id") Long id) {
+        return planetService.get(id).map(planet -> ResponseEntity.ok(planet))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
