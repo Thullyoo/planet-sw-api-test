@@ -1,8 +1,6 @@
 package br.thullyoo.planet_sw_api_test.service;
 
 import br.thullyoo.planet_sw_api_test.model.Planet;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import br.thullyoo.planet_sw_api_test.model.builder.QueryBuilder;
 import br.thullyoo.planet_sw_api_test.repository.PlanetRepository;
@@ -23,10 +21,10 @@ import java.util.Optional;
 import static br.thullyoo.planet_sw_api_test.common.PlanetConstants.PLANET;
 import static br.thullyoo.planet_sw_api_test.common.PlanetConstants.INVALID_PLANET;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.InstanceOfAssertFactories.COLLECTION;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.framework;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PlanetServiceTest {
@@ -113,5 +111,17 @@ public class PlanetServiceTest {
         List<Planet> res = planetService.list(PLANET.getClimate(), PLANET.getTerrain());
 
         assertThat(res).isEmpty();
+    }
+
+    @Test
+    public void removePlanet_withExistingId_doesNotThrowException(){
+        assertThatCode(() -> planetService.remove(1L)).doesNotThrowAnyException();
+    }
+
+    @Test
+    public void removePlanet_withUnexistingId_ThrowsException(){
+        doThrow(RuntimeException.class).when(planetRepository).deleteById(1L);
+
+        assertThatThrownBy(() -> planetService.remove(1L)).isInstanceOf(RuntimeException.class);
     }
 }
