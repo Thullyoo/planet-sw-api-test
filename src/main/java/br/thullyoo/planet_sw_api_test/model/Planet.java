@@ -1,6 +1,7 @@
 package br.thullyoo.planet_sw_api_test.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 @Entity
@@ -11,8 +12,16 @@ public class Planet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotEmpty
+    @Column(nullable = false)
     private String name;
+
+    @NotEmpty
+    @Column(nullable = false)
     private String climate;
+
+    @NotEmpty
+    @Column(nullable = false)
     private String terrain;
 
     public Planet(String name, String climate, String terrain) {
@@ -24,6 +33,10 @@ public class Planet {
     public Planet(String climate, String terrain) {
         this.climate = climate;
         this.terrain = terrain;
+    }
+
+    public Planet() {
+
     }
 
     public Long getId() {
