@@ -2,6 +2,7 @@ package br.thullyoo.planet_sw_api_test.controller;
 
 import br.thullyoo.planet_sw_api_test.model.Planet;
 import br.thullyoo.planet_sw_api_test.service.PlanetService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class PlanetController {
     }
 
     @PostMapping
-    public ResponseEntity<Planet> create(@RequestBody Planet planet){
+    public ResponseEntity<Planet> create(@RequestBody @Valid Planet planet){
         return ResponseEntity.status(HttpStatus.CREATED).body(planetService.create(planet));
     }
 
