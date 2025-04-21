@@ -85,4 +85,20 @@ class PlanetControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
 
     }
+
+    @Test
+    public void getPlanet_ByExistingName_ReturnsPlanet() throws Exception{
+        when(planetService.getByName("name")).thenReturn(Optional.of(PLANET));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/planets/name/name"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$").value(PLANET));
+    }
+
+    @Test
+    public void getPlanet_ByUnexistingName_ReturnsNotFound() throws Exception{
+        mockMvc.perform(MockMvcRequestBuilders.get("/planets/name/name"))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+
+    }
 }
