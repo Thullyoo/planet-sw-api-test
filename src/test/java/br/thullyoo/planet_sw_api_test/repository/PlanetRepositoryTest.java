@@ -2,11 +2,16 @@ package br.thullyoo.planet_sw_api_test.repository;
 
 import br.thullyoo.planet_sw_api_test.model.Planet;
 import jakarta.validation.ConstraintViolationException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+
+import javax.swing.text.html.Option;
+
+import java.util.Optional;
 
 import static br.thullyoo.planet_sw_api_test.common.PlanetConstants.PLANET;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,6 +26,12 @@ class PlanetRepositoryTest {
 
     @Autowired
     private TestEntityManager testEntityManager;
+
+    @AfterEach
+    public void AfterEach(){
+        PLANET.setId(null);
+    }
+
 
     @Test
     public void createPlanet_withValidData_returnsPlanet(){
@@ -50,5 +61,23 @@ class PlanetRepositoryTest {
         planet.setId(null);
 
         assertThatThrownBy(() -> planetRepository.save(planet)).isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    public void getPlanet_ByExistingId_ReturnsPlanet(){
+        Planet planet = testEntityManager.persistFlushFind(PLANET);
+
+        Optional<Planet> res = planetRepository.findById(planet.getId());
+
+        assertThat(res).isNotEmpty();
+        assertThat(res.get()).isEqualTo(planet);
+    }
+
+    @Test
+    public void getPlanet_ByExistingId_ReturnsEmpty(){
+        Optional<Planet> res = planetRepository.findById(1L);
+
+        assertThat(res).isEmpty();
+
     }
 }
