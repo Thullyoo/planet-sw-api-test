@@ -2,7 +2,6 @@ package br.thullyoo.planet_sw_api_test.controller;
 
 import br.thullyoo.planet_sw_api_test.model.Planet;
 import br.thullyoo.planet_sw_api_test.service.PlanetService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +10,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
-import static br.thullyoo.planet_sw_api_test.common.PlanetConstants.PLANET;
+import static br.thullyoo.planet_sw_api_test.common.PlanetConstants.*;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -100,5 +101,32 @@ class PlanetControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/planets/name/name"))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
 
+    }
+    
+    @Test
+    public void listPlanets_ReturnsFilteredPlanets() throws Exception {
+        when(planetService.list(null, null)).thenReturn(PLANETS);
+        when(planetService.list(ALDERAAN.getTerrain(), ALDERAAN.getClimate())).thenReturn(List.of(ALDERAAN));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/planets?" + "terrain=" + ALDERAAN.getTerrain() + "&climate=" + ALDERAAN.getClimate()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(1)));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/planets"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0]").value(TATOOINE));
+    }
+
+    @Test
+    public void listPlanets_ReturnsNoPlanets() throws Exception {
+        when(planetService.list(null, null)).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/planets"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(0)));
     }
 }
