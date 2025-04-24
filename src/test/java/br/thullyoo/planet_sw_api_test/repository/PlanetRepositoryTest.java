@@ -124,5 +124,18 @@ class PlanetRepositoryTest {
         assertThat(res).isEmpty();
     }
 
+    @Test
+    public void removePlanet_WithExistingId_RemovesPlanetFromDatabase(){
+        Planet planet = testEntityManager.persistFlushFind(PLANET);
 
+        planetRepository.deleteById(planet.getId());
+        Planet res = testEntityManager.find(Planet.class, planet.getId());
+        assertThat(res).isNull();
+
+    }
+
+    @Test
+    public void removePlanet_WithUnexistingId_ThrowsException(){
+        assertThatThrownBy(() -> planetRepository.deleteById(99L)).isInstanceOf(EmptyResultDataAccessException.class);
+    }
 }

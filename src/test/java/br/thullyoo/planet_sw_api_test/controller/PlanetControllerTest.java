@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import static br.thullyoo.planet_sw_api_test.common.PlanetConstants.*;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @WebMvcTest(PlanetController.class)
@@ -129,4 +131,23 @@ class PlanetControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(0)));
     }
+
+    @Test
+    public void removePlanet_WithExistingId_ReturnsNoContent() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/planets/1"))
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
+
+    @Test
+    public void removePlanet_WithUnexistingId_ReturnsNotFound() throws Exception {
+
+        doThrow(EmptyResultDataAccessException.class).when(planetService).remove(1L);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/planets/1"))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+
 }
