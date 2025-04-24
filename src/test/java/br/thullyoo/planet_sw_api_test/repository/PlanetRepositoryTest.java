@@ -1,19 +1,21 @@
 package br.thullyoo.planet_sw_api_test.repository;
 
 import br.thullyoo.planet_sw_api_test.model.Planet;
+import br.thullyoo.planet_sw_api_test.model.builder.QueryBuilder;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Example;
+import org.springframework.test.context.jdbc.Sql;
 
-import javax.swing.text.html.Option;
-
+import java.util.List;
 import java.util.Optional;
 
-import static br.thullyoo.planet_sw_api_test.common.PlanetConstants.PLANET;
+import static br.thullyoo.planet_sw_api_test.common.PlanetConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -98,4 +100,29 @@ class PlanetRepositoryTest {
         assertThat(res).isEmpty();
 
     }
+
+    @Sql(scripts = "/import_planets.sql")
+    @Test
+    public void listPlanets_ReturnsFilteredPlanets(){
+        Example<Planet> queryWithFilter = QueryBuilder.makeQuery(new Planet(TATOOINE.getClimate(), TATOOINE.getTerrain()));
+        Example<Planet> queryWithoutFilter = QueryBuilder.makeQuery(new Planet());
+
+        List<Planet> resWithoutFilter = planetRepository.findAll(queryWithoutFilter);
+        List<Planet> resWithFilter = planetRepository.findAll(queryWithFilter);
+
+        assertThat(resWithoutFilter).hasSize(3);
+        assertThat(resWithFilter).hasSize(1);
+        assertThat(resWithFilter.get(0)).isEqualTo(TATOOINE);
+    }
+
+    @Test
+    public void listPlanets_ReturnsNoPlanets(){
+        Example<Planet> query = QueryBuilder.makeQuery(new Planet());
+
+        List<Planet> res = planetRepository.findAll(query);
+
+        assertThat(res).isEmpty();
+    }
+
+
 }
